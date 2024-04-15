@@ -47,7 +47,6 @@ class TextOptionMenu:
                 self.text_options[i].change_color(self.selected_color)
                 hovered_opt = i
                 if clicked:
-                    print("HI")
                     clicked_opt = i
             elif self.text_options[i].color == self.selected_color:
                 self.text_options[i].change_color(self.default_color)

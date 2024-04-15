@@ -1,17 +1,14 @@
-import pygame
 import random
 import math
-import utils
 from constants import *
-from text import TextOptionMenu
 
 N_RECTANGLES = 120
 
 
-def gen_rgb(i):
-    r = int((254 * (i / N_RECTANGLES)))
-    g = int((127 * (math.sin(i / 30) + 1)))
-    b = int(255 - ((i / N_RECTANGLES) * 255))
+def gen_rgb(n):
+    r = int((254 * (n / N_RECTANGLES)))
+    g = int((127 * (math.sin(n / 30) + 1)))
+    b = int(255 - ((n / N_RECTANGLES) * 255))
     return r, g, b
 
 
@@ -34,13 +31,14 @@ for i in range(len(surfs)):
 colors = [gen_rgb(i) for i in range(N_RECTANGLES)]
 initial_x = [r.x for r in rects]
 
+
 # -------- Main Program Loop -----------
 
-def render_rects(screen):
+def render_rects(scr):
     global rects
-    for i in range(len(rects)):
-        rects[i].move_ip(random.randint(-5, -3), random.randint(-1, 1))
-        if rects[i].x < -300:
-            rects[i].move_ip(random.randint(2000, 8000), 0)
-        if rects[i].x < 1500:
-            screen.blit(surfs[i], rects[i])
+    for r in range(len(rects)):
+        rects[r].move_ip(random.randint(-5, -3), random.randint(-1, 1))
+        if rects[r].x < -300:
+            rects[r].move_ip(random.randint(2000, 8000), 0)
+        if rects[r].x < 1500:
+            scr.blit(surfs[r], rects[r])
