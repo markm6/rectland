@@ -4,6 +4,8 @@ from menus import startup_menu
 from gameplay import gameplay_screen
 
 import utils
+import random
+
 loading_text = BASE_FONT.render("Loading...", True, (255, 255, 255))
 
 pygame.display.set_caption("operation rectzland (menu)")
