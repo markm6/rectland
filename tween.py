@@ -28,10 +28,10 @@ class Tween:
         self.duration = amt_time
 
         self.done = False
+
     def update(self):
         curr_time = time.time() - self.start_time
         if curr_time < self.duration:
-            # simulatenous results in end and start val being the same ? ? ?
             self.curr_val = self.start_val + (self.end_val - self.start_val) * self.func(curr_time / self.duration)
         elif not self.done:
             self.done = True
