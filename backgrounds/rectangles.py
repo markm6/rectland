@@ -4,7 +4,7 @@ from constants import *
 
 N_RECTANGLES = 120
 
-
+# TODO: sort out this whole file, render rects as a function? (not too high priority)
 def gen_rgb(n):
     r = int((254 * (n / N_RECTANGLES)))
     g = int((127 * (math.sin(n / 30) + 1)))
