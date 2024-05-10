@@ -1,8 +1,8 @@
 import pygame
 from constants import *
-from menus import startup_menu
+from menus import startup_menu, song_menu
 from gameplay import gameplay_screen
-
+import time
 import utils
 import random
 
@@ -19,13 +19,19 @@ curr_chart = None
 # idk if returning the chart object to screen every frame is good idea
 
 while not utils.check_quit(events):
+    t1 = time.time()
     if scr == 0:
         return_code = startup_menu(events)
-        if return_code:
+        if return_code is not None:
             scr = return_code
     elif scr == 1:
         # TODO: make some charts at home, add a menu here to select between charts
-        return_code = gameplay_screen(events)
-        if return_code:
+        return_code = song_menu(events)
+        if return_code is not None:
             scr = return_code
+    elif scr == 2:
+        return_code = gameplay_screen(events)
+        if return_code is not None:
+            scr = return_code
+    t2 = time.time()
     events = pygame.event.get()

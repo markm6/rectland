@@ -5,7 +5,7 @@ import tween
 import math
 import time
 import json
-from tween import Tween, EaseLinear
+from tween import *
 from text import Text
 
 
@@ -35,34 +35,37 @@ class Note:
         self.x = square_n % 5
         self.y = math.floor((square_n - 1) / 5) if square_n > 0 else 0
 
-    def render(self, screen: pygame.Surface, chart_time: float, is_hit: bool, grid_x, grid_y):
+    def render(self, chart_time: float, is_hit: bool, grid_x, grid_y):
         if chart_time >= self.note_time - self.visible_duration \
-                and not self.visible and not self.was_not_hit:
+                and not self.visible and not self.was_not_hit and not self.hit:
             self.visible = True
-            self.scale_tween = Tween(EaseLinear, 0, 78, self.visible_duration)
+            self.scale_tween = Tween(EaseLinear, 1, 75, self.visible_duration)
             self.surface = pygame.Surface((75, 75))
-            self.surface.fill((30, 255, 10))
+            self.surface.fill((30, 190, 10))
 
 
         if self.visible:
             self.scale_tween.update()
-
-            self.scale = int(self.scale_tween.curr_val) + 1
+            self.scale = int(self.scale_tween.curr_val)
             self.surface = pygame.transform.scale(self.surface, (self.scale, self.scale))
             if is_hit:
                 self.hit = True
                 self.hit_deviation = 1000 * (chart_time - self.note_time)
+                self.visible = False
+                # add cool animation later
+
             if chart_time > self.note_time:
-                if not self.scale_tween:
-                    self.scale_tween = Tween(EaseLinear, 78, 0, self.visible_duration)
+                print('test')
+                if not self.scale_tween.end_val == 1:
+                    print('test2')
+                    self.scale_tween = Tween(EaseLinear, 75, 1, self.visible_duration)
                 else:
-                    if self.scale_tween.done and not self.hit:
+                    if self.scale_tween.done and self.scale_tween.end_val == 1 and not self.hit:
                         self.was_not_hit = True
                         self.hit_deviation = 3000
                         self.visible = False
         if self.visible:
-            print(f"{self} blitted")
-            screen.blit(self.surface, pygame.Rect(grid_x + self.x * 80, grid_y + self.y * 80, 75, 75))
+            screen.blit(self.surface, pygame.Rect(grid_x + self.x * 80 + 5, grid_y + self.y * 80 + 5, 74, 74))
         ...
 
 
@@ -96,7 +99,6 @@ class Grid:
             self.square_n += y * 5
             self.y_tween = tween.Tween(tween.EaseSineInOut, (self.square_y - y) * 80 + self.y + 5,
                                        self.square_y * 80 + self.y + 5, 0.08)
-        print(self.square_n)
 
     def blit(self):
         if self.x_tween:
@@ -124,7 +126,7 @@ class Chart:
         self.length = self.song_file.get_length()
         self.info = f"{song_artist} - {song_name}"
         self.chart_clock = time.time() + 2  # allow 2 seconds of time for intro
-
+        self.hit_deviations = []
         self.progress_bar_width = SIZE[0] // 3
 
         self.progress_rect_bg = pygame.Rect(SIZE[0] // 3, 20, SIZE[0] // 2, 50)
@@ -143,9 +145,10 @@ class Chart:
         if time_diff > 0:
             for note in self.notes[:10]:
                 if curr_grid.square_n == note.square_n and hit_note:
-                    note.render(screen, time_diff, True, curr_grid.x, curr_grid.y)
+                    note.render(time_diff, True, curr_grid.x, curr_grid.y)
+                    self.hit_deviations.append(note.hit_deviation)
                 else:
-                    note.render(screen, time_diff, False, curr_grid.x, curr_grid.y)
+                    note.render(time_diff, False, curr_grid.x, curr_grid.y)
 
     def render_progress(self):
         curr_progress = utils.clamp((time.time() - self.chart_clock) / self.length, 0, 1)
@@ -203,6 +206,6 @@ def gameplay_screen(events):
             if event.dict['key'] == pygame.K_SPACE:
                 hit_note = True
 
-    test_chart.render_notes(grid, True)
     grid.blit()
+    test_chart.render_notes(grid, hit_note)
     pygame.display.update()

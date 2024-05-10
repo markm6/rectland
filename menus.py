@@ -36,7 +36,7 @@ def startup_menu(events):
 def song_menu(events):
     # TODO: finish up song menu, make a new background for this
     menu = TextOptionMenu(BASE_FONT, (255, 255, 255), (255, 100, 100), (20, 20),
-                          ["level 1: ...", "level 2: ...", "level 3: ..."])
+                          ["level 1: test", "level 2: ...", "level 3: ...", "back"])
     mouse_pos = pygame.mouse.get_pos()
     clock.tick(60)
     screen.fill((0, 0, 0))
@@ -50,12 +50,13 @@ def song_menu(events):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_clicked = True
     hovered_opt, clicked_opt = menu.get_interacted(mouse_pos, mouse_clicked)
-    if clicked_opt == 0:
-        return 1
-    elif clicked_opt == 1:
-        return 2
-    elif clicked_opt == 2:
-        utils.quit_game()
     menu.blit(screen)
     pygame.display.update()
-
+    if clicked_opt == 0:
+        return 2
+    elif clicked_opt == 1:
+        return 3
+    elif clicked_opt == 2:
+        return 4
+    elif clicked_opt == 3:
+        return 0
