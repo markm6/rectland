@@ -5,7 +5,7 @@ import utils
 from constants import *
 from text import TextOptionMenu
 import backgrounds.rectangles
-
+from gameplay import *
 clock = pygame.time.Clock()
 
 
@@ -33,7 +33,9 @@ def startup_menu(events):
     menu.blit(screen)
     pygame.display.update()
 
+curr_chart_playing = None
 def song_menu(events):
+    global curr_chart_playing
     # TODO: finish up song menu, make a new background for this
     menu = TextOptionMenu(BASE_FONT, (255, 255, 255), (255, 100, 100), (20, 20),
                           ["level 1: test", "level 2: ...", "level 3: ...", "back"])
@@ -53,6 +55,7 @@ def song_menu(events):
     menu.blit(screen)
     pygame.display.update()
     if clicked_opt == 0:
+        curr_chart_playing = load_chart("assets/chart1test.cf", "assets/file_example_MP3_1MG.mp3", grid)
         return 2
     elif clicked_opt == 1:
         return 3

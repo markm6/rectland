@@ -18,6 +18,11 @@ class Text:
         self.text_obj = self.font.render(new_display_text, True, self.color)
         self.rect = pygame.Rect(self.x, self.y, self.text_obj.get_width(), self.text_obj.get_height())
 
+    def change_font(self, new_font: pygame.font.Font):
+        self.font = new_font
+        self.text_obj = self.font.render(self.display_text, True, self.color)
+        self.rect = pygame.Rect(self.x, self.y, self.text_obj.get_width(), self.text_obj.get_height())
+
     def change_color(self, new_color: tuple[int, int, int]):
         self.color = new_color
         self.text_obj = self.font.render(self.display_text, True, new_color)

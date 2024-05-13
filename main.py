@@ -10,13 +10,10 @@ loading_text = BASE_FONT.render("Loading...", True, (255, 255, 255))
 
 pygame.display.set_caption("operation rectzland (menu)")
 
-scr = 0
+scr = 2
 
 events = pygame.event.get()
 curr_chart = None
-# psuedo code kinda: when at gameplay_screen(),
-# have it access the chart from either here or another file
-# idk if returning the chart object to screen every frame is good idea
 
 while not utils.check_quit(events):
     t1 = time.time()

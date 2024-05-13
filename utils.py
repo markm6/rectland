@@ -21,8 +21,32 @@ def accuracy_calc(deviations: list):
         dev = abs(dev)
         if dev < 5:
             converted_accuracies.append(100)
-        elif 5 < dev < 878:
-            converted_accuracies.append(100 - 0.001*((dev - 5)**1.7))
-        if dev > 2500:
+        elif 5 < dev < 400:
+            converted_accuracies.append(100 - 0.001*((dev - 5)**1.925))
+        else:
             converted_accuracies.append(-100)
     return sum(converted_accuracies) / len(converted_accuracies)
+
+
+def get_judgements(deviations: list) -> dict:
+    """Calculate judgements based on a list of hit deviations.
+    :param deviations: Hit deviations
+    :return: dict with numbers of perfects, decents, goods, mehs, and misses in order"""
+    perfects = 0
+    decents = 0
+    goods = 0
+    mehs = 0
+    misses = 0
+    for dev in deviations:
+        dev = abs(dev)
+        if dev < 10:
+            perfects += 1
+        elif dev < 25:
+            decents += 1
+        elif dev < 100:
+            goods += 1
+        elif dev < 400:
+            mehs += 1
+        else:
+            misses += 1
+    return {"perfects": perfects, "decents": decents, "goods": goods, "mehs": mehs, "misses": misses}

@@ -185,13 +185,12 @@ def load_chart(chart_filename: str, song_filename: str, grid: Grid) -> Chart:
     return Chart(notes_list, song_name, song_artist, song_filename, song_offset, grid)
 
 
-test_chart = load_chart("assets/chart1test.cf", "assets/file_example_MP3_1MG.mp3", grid)
-
-
+# TODO: handle current chart playing when i get home because i am very confused as of writing this
+chart_list = [load_chart("assets/chart1test.cf", "assets/file_example_MP3_1MG.mp3", grid), None, None, None]
 def gameplay_screen(events):
     CLOCK.tick(60)
     screen.fill((0, 0, 0))
-    test_chart.render_progress()
+    # curr_chart.render_progress()
     hit_note = False
     for event in events:
         if event.type == pygame.KEYDOWN:
@@ -207,5 +206,5 @@ def gameplay_screen(events):
                 hit_note = True
 
     grid.blit()
-    test_chart.render_notes(grid, hit_note)
+    # curr_chart.render_notes(grid, hit_note)
     pygame.display.update()
