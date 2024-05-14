@@ -1,7 +1,7 @@
 import pygame
 from gameplay import Chart
 from utils import accuracy_calc, get_judgements
-from text import Text
+from text import Text, TextOptionMenu
 from constants import *
 
 class Results:
@@ -28,3 +28,15 @@ class Results:
             text.blit(screen)
         self.text_acc.blit(screen)
         self.text_chart_info.blit(screen)
+
+
+exit_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (20, 20), ["exit"])
+def results_screen(events):
+    # render text & options next
+    mouse_clicked = False
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_clicked = True
+    mouse_pos = pygame.mouse.get_pos()
+    hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, mouse_clicked)
+    exit_menu.blit(screen)

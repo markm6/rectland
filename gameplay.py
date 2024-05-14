@@ -28,7 +28,7 @@ class Note:
         self.hit_deviation = None  # in milliseconds
         self.visible_duration = visible_duration  # in seconds
         self.surface = None
-
+        self.color = (200, 200, 240)
         # square_n = (row - 1) * 5 + column
         # square_n = 5(y - 1) + x
         self.square_n = square_n
@@ -41,7 +41,7 @@ class Note:
             self.visible = True
             self.scale_tween = Tween(EaseLinear, 1, 75, self.visible_duration)
             self.surface = pygame.Surface((75, 75))
-            self.surface.fill((30, 190, 10))
+            self.surface.fill(self.color)
 
 
         if self.visible:
@@ -55,9 +55,7 @@ class Note:
                 # add cool animation later
 
             if chart_time > self.note_time:
-                print('test')
                 if not self.scale_tween.end_val == 1:
-                    print('test2')
                     self.scale_tween = Tween(EaseLinear, 75, 1, self.visible_duration)
                 else:
                     if self.scale_tween.done and self.scale_tween.end_val == 1 and not self.hit:
@@ -118,26 +116,28 @@ grid = Grid(SIZE[0] // 2 - 405, SIZE[1] - 500)
 # wondering on how I should have chart class interact with grid in code... will think about this at home
 class Chart:
     def __init__(self, notes: list[Note], song_name: str, song_artist: str,
-                 song_filename: str, song_start: float, grid: Grid):
+                 song_filename: str, song_start: float):
         self.image = pygame.image.load("assets/note.png")
         self.notes = notes
         self.song_start = song_start
         self.song_file = pygame.mixer.Sound(song_filename)
         self.length = self.song_file.get_length()
         self.info = f"{song_artist} - {song_name}"
-        self.chart_clock = time.time() + 2  # allow 2 seconds of time for intro
+        self.chart_clock = time.time()
         self.hit_deviations = []
-        self.progress_bar_width = SIZE[0] // 3
+        self.progress_bar_width = SIZE[0] // 2
+        self.progress_bar_x = SIZE[0] // 5
+        self.started = False
+        self.finished = False
 
-        self.progress_rect_bg = pygame.Rect(SIZE[0] // 3, 20, SIZE[0] // 2, 50)
-        self.progress_rect_fg = pygame.Rect(SIZE[0] // 3, 20, 1, 50)
-        self.text = Text(self.info, (SIZE[0] // 3, 52), font=INFO_FONT)
+        self.progress_rect_bg = pygame.Rect(self.progress_bar_x, 20, self.progress_bar_width, 50)
+        self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, 1, 50)
+        self.text = Text(self.info, (SIZE[0] // 5, 52), font=INFO_FONT)
 
     def start(self):
-        self.chart_clock = time.time() + 2
-        # handle audio later, need to figure out
-        # if audio object should be used
-        # or just mixer module (probably mixer for now)
+        self.chart_clock = time.time()
+        self.song_file.play()
+        self.started = True
         ...
 
     def render_notes(self, curr_grid: Grid, hit_note: bool):
@@ -147,19 +147,26 @@ class Chart:
                 if curr_grid.square_n == note.square_n and hit_note:
                     note.render(time_diff, True, curr_grid.x, curr_grid.y)
                     self.hit_deviations.append(note.hit_deviation)
+                    print(self.notes)
+                    self.notes.pop(0)
+
+                    print(self.hit_deviations)
                 else:
                     note.render(time_diff, False, curr_grid.x, curr_grid.y)
 
     def render_progress(self):
-        curr_progress = utils.clamp((time.time() - self.chart_clock) / self.length, 0, 1)
-        self.progress_rect_fg = pygame.Rect(SIZE[0] // 3, 20, int(curr_progress * self.progress_bar_width), 50)
+        time_elapsed = time.time() - self.chart_clock
+        curr_progress = utils.clamp(time_elapsed / self.length, 0, 1)
+        self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, int(curr_progress * self.progress_bar_width), 50)
         pygame.draw.rect(screen, (100, 100, 100), self.progress_rect_bg)
-        pygame.draw.rect(screen, (255, 255, 0), self.progress_rect_fg)
+        pygame.draw.rect(screen, (60, 60, 90), self.progress_rect_fg)
         # TODO: refactor everything to not require scr param
         self.text.blit(screen)
+        if time_elapsed >= self.length:
+            self.finished = True
 
 
-def load_chart(chart_filename: str, song_filename: str, grid: Grid) -> Chart:
+def load_chart(chart_filename: str) -> Chart:
     # before metadata, chart files contain only notes.
     # each line after contains info of a note, and is formatted as:
     # [square_n] [note_time]
@@ -170,27 +177,36 @@ def load_chart(chart_filename: str, song_filename: str, grid: Grid) -> Chart:
     song_name = song_artist = None
     song_offset = None
     visible_difficulty = None
+    song_filename = None
     for line in f.readlines():
         if "{" not in line:
-            square_n, note_time = map(int, line.split())
+            square_n, note_time = line.split()
+            square_n = int(square_n)
+            note_time = float(note_time)
             notes_list.append(Note(note_time, square_n, visible_difficulty))
         else:
             metadata = json.loads(line)
             song_name = metadata['song_name']
             song_artist = metadata['artist']
+            song_filename = metadata['song_file']
             song_offset = metadata['song_offset']
             visible_difficulty = metadata['visible_difficulty']
     f.close()
 
-    return Chart(notes_list, song_name, song_artist, song_filename, song_offset, grid)
+    return Chart(notes_list, song_name, song_artist, song_filename, song_offset)
 
 
 # TODO: handle current chart playing when i get home because i am very confused as of writing this
-chart_list = [load_chart("assets/chart1test.cf", "assets/file_example_MP3_1MG.mp3", grid), None, None, None]
-def gameplay_screen(events):
+chart_list = [load_chart("assets/chart1test.cf"), None, None, None]
+def gameplay_screen(events, chart_n: int):
+    if not chart_list[chart_n].started:
+        chart_list[chart_n].start()
+    elif chart_list[chart_n].finished:
+        return 1
+        
     CLOCK.tick(60)
     screen.fill((0, 0, 0))
-    # curr_chart.render_progress()
+    chart_list[chart_n].render_progress()
     hit_note = False
     for event in events:
         if event.type == pygame.KEYDOWN:
@@ -206,5 +222,5 @@ def gameplay_screen(events):
                 hit_note = True
 
     grid.blit()
-    # curr_chart.render_notes(grid, hit_note)
+    chart_list[chart_n].render_notes(grid, hit_note)
     pygame.display.update()

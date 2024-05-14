@@ -1,4 +1,6 @@
 import pygame
+
+import results
 from constants import *
 from menus import startup_menu, song_menu
 from gameplay import gameplay_screen
@@ -13,7 +15,7 @@ pygame.display.set_caption("operation rectzland (menu)")
 scr = 2
 
 events = pygame.event.get()
-curr_chart = None
+curr_chart = 0
 
 while not utils.check_quit(events):
     t1 = time.time()
@@ -26,9 +28,14 @@ while not utils.check_quit(events):
         return_code = song_menu(events)
         if return_code is not None:
             scr = return_code
+            if return_code != 0:
+                curr_chart = return_code - 2
     elif scr == 2:
-        return_code = gameplay_screen(events)
+        return_code = gameplay_screen(events, curr_chart)
         if return_code is not None:
             scr = return_code
+    elif scr == 3:
+        # return_code = results.results_screen()
+        ...
     t2 = time.time()
     events = pygame.event.get()
