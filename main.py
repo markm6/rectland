@@ -4,6 +4,7 @@ import results
 from constants import *
 from menus import startup_menu, song_menu
 from gameplay import gameplay_screen
+from results import *
 import time
 import utils
 import random
@@ -12,10 +13,11 @@ loading_text = BASE_FONT.render("Loading...", True, (255, 255, 255))
 
 pygame.display.set_caption("operation rectzland (menu)")
 
-scr = 2
+scr = 0
 
 events = pygame.event.get()
 curr_chart = 0
+curr_results = None
 
 while not utils.check_quit(events):
     t1 = time.time()
@@ -31,11 +33,13 @@ while not utils.check_quit(events):
             if return_code != 0:
                 curr_chart = return_code - 2
     elif scr == 2:
-        return_code = gameplay_screen(events, curr_chart)
-        if return_code is not None:
-            scr = return_code
+        results = gameplay_screen(events, curr_chart)
+        if results is not None:
+            curr_results = results
+            scr = 3
     elif scr == 3:
-        # return_code = results.results_screen()
-        ...
+        return_code = results_screen(events, curr_results)
+        if return_code:
+            scr = return_code
     t2 = time.time()
     events = pygame.event.get()

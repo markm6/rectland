@@ -7,6 +7,24 @@ import time
 import json
 from tween import *
 from text import Text
+from results import Results
+
+
+class LiveAccuracy:
+    def __init__(self):
+        self.accuracy_sum = 0
+        self.notes_passed = 0
+        self.curr_accuracy = 0.0
+        self.text = Text("00.00%", (20, 20), (255, 255, 255))
+
+    def update(self, hit_dev: float):
+        self.accuracy_sum += utils.single_deviation_acc(hit_dev)
+        self.notes_passed += 1
+        self.curr_accuracy = round((self.accuracy_sum / self.notes_passed), 2)
+        self.text.change_text(str(self.curr_accuracy) + "%")
+
+    def render(self):
+        self.text.blit(screen)
 
 
 # the grid class also includes the player
@@ -43,7 +61,6 @@ class Note:
             self.surface = pygame.Surface((75, 75))
             self.surface.fill(self.color)
 
-
         if self.visible:
             self.scale_tween.update()
             self.scale = int(self.scale_tween.curr_val)
@@ -71,7 +88,6 @@ class Grid:
     def __init__(self, x, y):
         self.image = pygame.image.load("assets/grid.png")
         self.square_image = pygame.image.load("assets/square.png")
-
         self.x = x
         self.y = y
 
@@ -117,14 +133,17 @@ grid = Grid(SIZE[0] // 2 - 405, SIZE[1] - 500)
 class Chart:
     def __init__(self, notes: list[Note], song_name: str, song_artist: str,
                  song_filename: str, song_start: float):
+
         self.image = pygame.image.load("assets/note.png")
         self.notes = notes
         self.song_start = song_start
         self.song_file = pygame.mixer.Sound(song_filename)
         self.length = self.song_file.get_length()
         self.info = f"{song_artist} - {song_name}"
+
         self.chart_clock = time.time()
         self.hit_deviations = []
+        self.curr_acc = LiveAccuracy()
         self.progress_bar_width = SIZE[0] // 2
         self.progress_bar_x = SIZE[0] // 5
         self.started = False
@@ -147,13 +166,15 @@ class Chart:
                 if curr_grid.square_n == note.square_n and hit_note:
                     note.render(time_diff, True, curr_grid.x, curr_grid.y)
                     self.hit_deviations.append(note.hit_deviation)
-                    print(self.notes)
+                    self.curr_acc.update(note.hit_deviation)
                     self.notes.pop(0)
 
-                    print(self.hit_deviations)
                 else:
                     note.render(time_diff, False, curr_grid.x, curr_grid.y)
-
+                    if note.was_not_hit:
+                        self.hit_deviations.append(note.hit_deviation)
+                        self.curr_acc.update(note.hit_deviation)
+                        self.notes.pop(0)
     def render_progress(self):
         time_elapsed = time.time() - self.chart_clock
         curr_progress = utils.clamp(time_elapsed / self.length, 0, 1)
@@ -164,6 +185,9 @@ class Chart:
         self.text.blit(screen)
         if time_elapsed >= self.length:
             self.finished = True
+
+    def render_live_acc(self):
+        self.curr_acc.render()
 
 
 def load_chart(chart_filename: str) -> Chart:
@@ -195,18 +219,20 @@ def load_chart(chart_filename: str) -> Chart:
 
     return Chart(notes_list, song_name, song_artist, song_filename, song_offset)
 
-
-# TODO: handle current chart playing when i get home because i am very confused as of writing this
 chart_list = [load_chart("assets/chart1test.cf"), None, None, None]
+gameplay_chart_list = chart_list
+
+
 def gameplay_screen(events, chart_n: int):
-    if not chart_list[chart_n].started:
-        chart_list[chart_n].start()
-    elif chart_list[chart_n].finished:
-        return 1
-        
-    CLOCK.tick(60)
+    if not gameplay_chart_list[chart_n].started:
+        gameplay_chart_list[chart_n].start()
+    elif gameplay_chart_list[chart_n].finished:
+        finished_chart = gameplay_chart_list[chart_n]
+        return Results(finished_chart.hit_deviations, finished_chart.curr_acc.curr_accuracy,
+                       finished_chart.text)
+
     screen.fill((0, 0, 0))
-    chart_list[chart_n].render_progress()
+    gameplay_chart_list[chart_n].render_progress()
     hit_note = False
     for event in events:
         if event.type == pygame.KEYDOWN:
@@ -222,5 +248,6 @@ def gameplay_screen(events, chart_n: int):
                 hit_note = True
 
     grid.blit()
-    chart_list[chart_n].render_notes(grid, hit_note)
+    gameplay_chart_list[chart_n].render_notes(grid, hit_note)
+    gameplay_chart_list[chart_n].render_live_acc()
     pygame.display.update()

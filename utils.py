@@ -15,17 +15,15 @@ def quit_game():
     pygame.quit()
     exit(0)
 
-def accuracy_calc(deviations: list):
-    converted_accuracies = []
-    for dev in deviations:
-        dev = abs(dev)
-        if dev < 5:
-            converted_accuracies.append(100)
-        elif 5 < dev < 400:
-            converted_accuracies.append(100 - 0.001*((dev - 5)**1.925))
-        else:
-            converted_accuracies.append(-100)
-    return sum(converted_accuracies) / len(converted_accuracies)
+
+def single_deviation_acc(deviation: float):
+    dev = abs(deviation)
+    if dev < 5:
+        return 100
+    elif 5 < dev < 400:
+        return 100 - 0.001*((dev - 5)**1.925)
+    return -100
+
 
 
 def get_judgements(deviations: list) -> dict:

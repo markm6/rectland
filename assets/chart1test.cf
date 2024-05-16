@@ -1,4 +1,4 @@
-{"song_name": "test song", "artist": "artist", "song_offset": 2, "visible_difficulty": 1, "song_file": "assets/test_song.mp3"}
+{"song_name": "test song", "artist": "artist", "song_offset": 2, "visible_difficulty": 0.6, "song_file": "assets/test_song.mp3"}
 0 1
 1 1.5
 2 2
