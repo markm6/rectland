@@ -228,6 +228,7 @@ def gameplay_screen(events, chart_n: int):
         gameplay_chart_list[chart_n].start()
     elif gameplay_chart_list[chart_n].finished:
         finished_chart = gameplay_chart_list[chart_n]
+
         return Results(finished_chart.hit_deviations, finished_chart.curr_acc.curr_accuracy,
                        finished_chart.text)
 

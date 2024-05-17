@@ -20,7 +20,6 @@ curr_chart = 0
 curr_results = None
 
 while not utils.check_quit(events):
-    t1 = time.time()
     if scr == 0:
         return_code = startup_menu(events)
         if return_code is not None:
@@ -41,5 +40,5 @@ while not utils.check_quit(events):
         return_code = results_screen(events, curr_results)
         if return_code:
             scr = return_code
-    t2 = time.time()
+
     events = pygame.event.get()

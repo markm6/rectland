@@ -31,6 +31,7 @@ class Results:
 
 
 exit_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (20, 20), ["exit"])
+
 def results_screen(events, chart_results: Results):
     screen.fill((0, 0, 0))
     # render text & options next
@@ -41,7 +42,7 @@ def results_screen(events, chart_results: Results):
     mouse_pos = pygame.mouse.get_pos()
     chart_results.render()
     hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, mouse_clicked)
-    if clicked_opt:
+    if clicked_opt == 0:
         return 1
     exit_menu.blit(screen)
     pygame.display.update()

@@ -21,7 +21,7 @@ def single_deviation_acc(deviation: float):
     if dev < 5:
         return 100
     elif 5 < dev < 400:
-        return 100 - 0.001*((dev - 5)**1.925)
+        return 100 - 0.001*((dev - 5)**1.91)
     return -100
 
 
@@ -37,9 +37,9 @@ def get_judgements(deviations: list) -> dict:
     misses = 0
     for dev in deviations:
         dev = abs(dev)
-        if dev < 10:
+        if dev < 20:
             perfects += 1
-        elif dev < 25:
+        elif dev < 50:
             decents += 1
         elif dev < 100:
             goods += 1
