@@ -39,6 +39,7 @@ while not utils.check_quit(events):
     elif scr == 3:
         return_code = results_screen(events, curr_results)
         if return_code:
+            curr_results = None
             scr = return_code
 
     events = pygame.event.get()

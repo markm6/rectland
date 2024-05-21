@@ -7,7 +7,7 @@ import time
 import json
 from tween import *
 from text import Text
-from results import Results
+from results import Results, save_score
 
 
 class LiveAccuracy:
@@ -215,6 +215,7 @@ def load_chart(chart_filename: str) -> Chart:
             song_filename = metadata['song_file']
             song_offset = metadata['song_offset']
             visible_difficulty = metadata['visible_difficulty']
+
     f.close()
 
     return Chart(notes_list, song_name, song_artist, song_filename, song_offset)
@@ -228,7 +229,7 @@ def gameplay_screen(events, chart_n: int):
         gameplay_chart_list[chart_n].start()
     elif gameplay_chart_list[chart_n].finished:
         finished_chart = gameplay_chart_list[chart_n]
-
+        gameplay_chart_list[chart_n] = chart_list[chart_n]
         return Results(finished_chart.hit_deviations, finished_chart.curr_acc.curr_accuracy,
                        finished_chart.text)
 
