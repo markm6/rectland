@@ -125,6 +125,15 @@ class Grid:
         screen.blit(self.square_image, (self.square_actual_x, self.square_actual_y))
         screen.blit(self.image, (self.x, self.y))
 
+    def reset_grid(self):
+        self.square_n = 0
+        self.square_x = 0
+        self.square_y = 0
+        self.square_actual_x = self.x + 5
+        self.square_actual_y = self.y + 5
+        self.x_tween = None
+        self.y_tween = None
+
 
 grid = Grid(SIZE[0] // 2 - 405, SIZE[1] - 500)
 
@@ -175,6 +184,7 @@ class Chart:
                         self.hit_deviations.append(note.hit_deviation)
                         self.curr_acc.update(note.hit_deviation)
                         self.notes.pop(0)
+
     def render_progress(self):
         time_elapsed = time.time() - self.chart_clock
         curr_progress = utils.clamp(time_elapsed / self.length, 0, 1)
@@ -220,7 +230,10 @@ def load_chart(chart_filename: str) -> Chart:
 
     return Chart(notes_list, song_name, song_artist, song_filename, song_offset)
 
-chart_list = [load_chart("assets/chart1test.cf"), None, None, None]
+
+chart_locations = ["assets/chart1test.cf", None, None, None]
+# leave None as a placeholder if the chart is not implemented yet
+chart_list = [load_chart(chart_loc) for chart_loc in chart_locations if chart_loc]
 gameplay_chart_list = chart_list
 
 
@@ -229,7 +242,14 @@ def gameplay_screen(events, chart_n: int):
         gameplay_chart_list[chart_n].start()
     elif gameplay_chart_list[chart_n].finished:
         finished_chart = gameplay_chart_list[chart_n]
-        gameplay_chart_list[chart_n] = chart_list[chart_n]
+
+        # Bug fix. this prevents a bug causing the player to immediately be
+        # redirected to the results/score screen when they want to play the
+        # chart again. loading a completely new chart from the
+        # chart location instead of just leaving it there solves the issue
+        gameplay_chart_list[chart_n] = load_chart(chart_locations[chart_n])
+
+        grid.reset_grid()
         return Results(finished_chart.hit_deviations, finished_chart.curr_acc.curr_accuracy,
                        finished_chart.text)
 

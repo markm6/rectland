@@ -6,11 +6,12 @@ from constants import *
 from text import TextOptionMenu
 import backgrounds.rectangles
 from gameplay import *
+from enums import ScreenEnum
 
 clock = pygame.time.Clock()
 
 
-def startup_menu(events):
+def startup_menu(events) -> Union[None, ScreenEnum]:
     menu = TextOptionMenu(BASE_FONT, (255, 255, 255), (255, 100, 100), (20, 20), ["play", "options", "quit"])
     mouse_pos = pygame.mouse.get_pos()
     clock.tick(60)
@@ -26,9 +27,9 @@ def startup_menu(events):
             mouse_clicked = True
     hovered_opt, clicked_opt = menu.get_interacted(mouse_pos, mouse_clicked)
     if clicked_opt == 0:
-        return 1
+        return ScreenEnum.MENU_SONGS
     elif clicked_opt == 1:
-        return 2
+        return ScreenEnum.OPTIONS
     elif clicked_opt == 2:
         utils.quit_game()
     menu.blit(screen)
@@ -65,4 +66,4 @@ def song_menu(events):
     elif clicked_opt == 2:
         return 4
     elif clicked_opt == 3:
-        return 0
+        return ScreenEnum.MENU_STARTUP
