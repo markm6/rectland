@@ -8,6 +8,7 @@ import datetime
 
 judgement_colors = [(50, 255, 50), (255, 255, 20), (90, 30, 100), (100, 90, 30), (255, 10, 10)]
 
+
 class Results:
     def __init__(self, hit_deviations: list[float], accuracy: float, chart_info_text: Text):
         self.hit_devs = hit_deviations
@@ -32,8 +33,15 @@ class Results:
         self.text_acc.blit(screen)
         self.text_chart_info.blit(screen)
 
+    def to_json(self):
+        return {"chart_name": self.text_chart_info.display_text,
+                "hit_devs": self.hit_devs, "accuracy": self.accuracy,
+                "judgements": self.judgements, "date": str(self.date_time),
+                "failed": self.failed}
+
 
 exit_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (20, 20), ["exit"])
+
 
 def save_score(chart_res: Results):
     uid = uuid.uuid4().hex
@@ -47,13 +55,15 @@ def save_score(chart_res: Results):
         # structure:
         # {song_inf: {'0a473894': results} }
         if chart_song_inf in scores_json.keys():
-            scores_json[chart_song_inf].update({uid: chart_res})
+            scores_json[chart_song_inf].update({uid: chart_res.to_json()})
     else:
-        scores_json = {chart_song_inf: {uid: chart_res}}
+        scores_json = {chart_song_inf: {uid: chart_res.to_json()}}
 
     f = open("scores/scores.json", "w")
+    # https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
     json.dump(scores_json, f)
     f.close()
+
 
 def results_screen(events, chart_results: Results):
     screen.fill((0, 0, 0))
@@ -66,6 +76,7 @@ def results_screen(events, chart_results: Results):
     chart_results.render()
     hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, mouse_clicked)
     if clicked_opt == 0:
+        save_score(chart_results)
         return 1
     exit_menu.blit(screen)
     pygame.display.update()

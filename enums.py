@@ -6,3 +6,4 @@ class ScreenEnum(Enum):
     GAMEPLAY = 2
     RESULTS = 3
     OPTIONS = 4
+    SCORES_LIST = 5

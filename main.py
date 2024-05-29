@@ -2,7 +2,7 @@ import pygame
 
 import results
 from constants import *
-from menus import startup_menu, song_menu
+from menus import startup_menu, song_menu, scores_menu
 from gameplay import gameplay_screen
 from results import *
 import time
@@ -46,5 +46,9 @@ while not utils.check_quit(events):
             scr = ScreenEnum.MENU_SONGS
     elif scr == ScreenEnum.OPTIONS:
         ...
+    elif scr == ScreenEnum.SCORES_LIST:
+        return_code = scores_menu(events, False)
+        if return_code:
+            scr = return_code
 
     events = pygame.event.get()

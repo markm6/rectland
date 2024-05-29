@@ -1,0 +1,3 @@
+{"artist - test song":
+{"62dbc635457b42319247dffc2d99b025":
+{"chart_name": "artist - test song", "hit_devs": [52.82020568847656, -19.328832626342773, 12.212753295898438, 25.203227996826172], "accuracy": 99.47, "judgements": {"perfects": 2, "decents": 1, "goods": 1, "mehs": 0, "misses": 0}, "date": "2024-05-29 10:44:35.236064", "failed": false}}}
