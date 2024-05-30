@@ -3,6 +3,7 @@ import pygame
 import results
 from constants import *
 from menus import startup_menu, song_menu, scores_menu
+from options import options_menu
 from gameplay import gameplay_screen
 from results import *
 import time
@@ -19,7 +20,7 @@ scr = ScreenEnum.MENU_STARTUP
 events = pygame.event.get()
 curr_chart = 0
 curr_results = None
-
+update_scores = False
 while not utils.check_quit(events):
     if scr == ScreenEnum.MENU_STARTUP:
         return_code = startup_menu(events)
@@ -44,10 +45,15 @@ while not utils.check_quit(events):
         if return_code:
             curr_results = None
             scr = ScreenEnum.MENU_SONGS
+            update_scores = True
     elif scr == ScreenEnum.OPTIONS:
-        ...
+        return_code = options_menu(events)
+        if return_code:
+            scr = ScreenEnum.MENU_STARTUP
     elif scr == ScreenEnum.SCORES_LIST:
-        return_code = scores_menu(events, False)
+        return_code = scores_menu(events, update_scores)
+        if update_scores:
+            update_scores = False
         if return_code:
             scr = return_code
 

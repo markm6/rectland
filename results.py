@@ -5,6 +5,7 @@ from constants import *
 import json
 import uuid
 import datetime
+from utils import check_mouse_clicked
 
 judgement_colors = [(50, 255, 50), (255, 255, 20), (90, 30, 100), (100, 90, 30), (255, 10, 10)]
 
@@ -68,10 +69,7 @@ def save_score(chart_res: Results):
 def results_screen(events, chart_results: Results):
     screen.fill((0, 0, 0))
     # render text & options next
-    mouse_clicked = False
-    for event in events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_clicked = True
+    mouse_clicked = check_mouse_clicked(events)
     mouse_pos = pygame.mouse.get_pos()
     chart_results.render()
     hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, mouse_clicked)

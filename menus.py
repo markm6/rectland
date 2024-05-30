@@ -1,10 +1,10 @@
 import pygame
 import random
 import math
-import utils
+from utils import check_mouse_clicked
 from constants import *
 from text import TextOptionMenu, Text
-import backgrounds.rectangles
+import backgrounds.rectangles, backgrounds.squares
 from gameplay import *
 import json
 from enums import ScreenEnum
@@ -57,10 +57,7 @@ def song_menu(events):
     backgrounds.rectangles.render_rects(screen)
 
     # render text & options next
-    mouse_clicked = False
-    for event in events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_clicked = True
+    mouse_clicked = check_mouse_clicked(events)
     hovered_opt, clicked_opt = menu.get_interacted(mouse_pos, mouse_clicked)
     menu.blit(screen)
     pygame.display.update()
@@ -98,6 +95,7 @@ scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 1
 
 def scores_menu(events, update_scores: bool):
     screen.fill((0, 0, 0))
+    backgrounds.squares.render_rects(screen)
     mouse_pos = pygame.mouse.get_pos()
     global scores_f, curr_scores_json, parsed_scores_list, scores_list
     if update_scores:
@@ -106,10 +104,14 @@ def scores_menu(events, update_scores: bool):
         scores_f.close()
         parsed_scores_list = parse_scores_json(curr_scores_json)
         scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), parsed_scores_list)
+
     scores_list.blit(screen)
     last_scores_text.blit(screen)
     exit_menu.blit(screen)
-    hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, pygame.MOUSEBUTTONDOWN in events)
+    mouse_clicked = check_mouse_clicked(events)
+
+    hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, mouse_clicked)
+
     pygame.display.flip()
     if clicked_opt == 0:
         return ScreenEnum.MENU_STARTUP

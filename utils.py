@@ -24,6 +24,7 @@ def single_deviation_acc(deviation: float):
         return 100 - 0.001*((dev - 5)**1.91)
     return -100
 
+
 def get_judgements(deviations: list) -> dict:
     """Calculate judgements based on a list of hit deviations.
     :param deviations: Hit deviations
@@ -47,3 +48,9 @@ def get_judgements(deviations: list) -> dict:
             misses += 1
     return {"perfects": perfects, "decents": decents, "goods": goods, "mehs": mehs, "misses": misses}
 
+
+def check_mouse_clicked(events):
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            return True
+    return False
