@@ -5,6 +5,7 @@ import tween
 import math
 import time
 import json
+import backgrounds.cdbounce
 from tween import *
 from text import Text
 from results import Results, save_score
@@ -43,7 +44,9 @@ class Note:
         self.in_late_window = False
         self.hit = False
         self.was_not_hit = False
-        self.hit_deviation = None  # in milliseconds
+        # default value of 3000ms so hit_deviation is calculated as a miss
+        # in case it doesn't get caught as a miss in the hit detection
+        self.hit_deviation = 3000  # in milliseconds
         self.visible_duration = visible_duration  # in seconds
         self.surface = None
         self.color = (200, 200, 240)
@@ -254,6 +257,7 @@ def gameplay_screen(events, chart_n: int):
                        finished_chart.text)
 
     screen.fill((0, 0, 0))
+    backgrounds.cdbounce.render_rects(screen)
     gameplay_chart_list[chart_n].render_progress()
     hit_note = False
     for event in events:

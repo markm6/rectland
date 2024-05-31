@@ -88,7 +88,7 @@ try:
     curr_scores_json = json.load(scores_f)
 except json.decoder.JSONDecodeError:
     curr_scores_json = {}
-parsed_scores_list = parse_scores_json(curr_scores_json)
+parsed_scores_list = parse_scores_json(curr_scores_json)[:10]
 scores_f.close()
 scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), parsed_scores_list)
 
@@ -102,7 +102,7 @@ def scores_menu(events, update_scores: bool):
         scores_f = open("scores/scores.json", "r")
         curr_scores_json = json.load(scores_f)
         scores_f.close()
-        parsed_scores_list = parse_scores_json(curr_scores_json)
+        parsed_scores_list = parse_scores_json(curr_scores_json)[:10]
         scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), parsed_scores_list)
 
     scores_list.blit(screen)

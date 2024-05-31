@@ -1,11 +1,14 @@
 import pygame
+
+import backgrounds.squares
 from constants import *
 from slider import Slider
-from text import Text
+from text import Text, TextOptionMenu
 from utils import check_mouse_clicked
 
 SFX_VOLUME = 50
 MUSIC_VOLUME = 50
+# FPS = 60
 
 menu_text = Text("options", (50, 100), font=BIG_FONT)
 sfx_text = Text("sfx volume:", (50, 200))
@@ -19,6 +22,7 @@ def options_menu(events):
     buttons_pressed = pygame.mouse.get_pressed(3)
     print(buttons_pressed)
     screen.fill((0, 0, 0))
+    backgrounds.squares.render_rects(screen)
     menu_text.blit(screen)
     sfx_text.blit(screen)
     music_text.blit(screen)
