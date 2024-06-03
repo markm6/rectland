@@ -15,13 +15,20 @@ sfx_text = Text("sfx volume:", (50, 200))
 music_text = Text("music volume:", (50, 300))
 sfx_slider = Slider(50, 250, True, 0, 100)
 music_slider = Slider(50, 350, True, 0, 100)
+exit_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (SIZE[0] - 100, 20), ["exit"])
 
-def options_menu(events):
+def options_menu():
     global SFX_VOLUME, MUSIC_VOLUME
     mouse_pos = pygame.mouse.get_pos()
     buttons_pressed = pygame.mouse.get_pressed(3)
+
+
     print(buttons_pressed)
     screen.fill((0, 0, 0))
+    hovered, clicked = exit_menu.get_interacted(mouse_pos, buttons_pressed[0])
+    if clicked == 0:
+        return 1
+    exit_menu.blit(screen)
     backgrounds.squares.render_rects(screen)
     menu_text.blit(screen)
     sfx_text.blit(screen)

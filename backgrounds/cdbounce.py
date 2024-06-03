@@ -2,12 +2,12 @@ import random
 import math
 from constants import *
 
-N_RECTANGLES = 20
+N_RECTANGLES = 5
 
 def gen_rgb(n):
-    r = int((256 * (n / N_RECTANGLES)))
-    g = int((80 * (math.sin(n / 30) + 1)))
-    b = int(60 - ((n / N_RECTANGLES) * 30))
+    r = int((254 * (n / N_RECTANGLES)))
+    g = int((128 * (math.sin(n / 30) + 1)))
+    b = int(255 - ((n / N_RECTANGLES) * 30))
     return r, g, b
 
 

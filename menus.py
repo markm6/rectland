@@ -115,3 +115,21 @@ def scores_menu(events, update_scores: bool):
     pygame.display.flip()
     if clicked_opt == 0:
         return ScreenEnum.MENU_STARTUP
+
+
+paused_text = Text("paused", (50, 50), font=BIG_FONT)
+back_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (50, 150), ["resume", "quit"])
+
+
+def pause_menu(events):
+    mouse_pos = pygame.mouse.get_pos()
+    clicked = check_mouse_clicked(events)
+    screen.fill((0, 0, 0))
+    paused_text.blit(screen)
+    back_menu.blit(screen)
+    pygame.display.flip()
+    hovered, clicked_opt = back_menu.get_interacted(mouse_pos, clicked)
+    if clicked_opt == 0:
+        return ScreenEnum.GAMEPLAY
+    elif clicked_opt == 1:
+        utils.quit_game()

@@ -3,6 +3,7 @@ from constants import *
 from text import Text
 import utils
 
+
 class Slider:
     def __init__(self, x, y, is_percent: bool, min_val, max_val):
         self.slider_img = pygame.image.load("assets/slider.png")
@@ -28,9 +29,9 @@ class Slider:
                 self.mouse_pressed_pos = (mouse_x, mouse_y)
                 self.knob_pressed_pos = (self.knob_x, self.knob_y)
 
-            self.knob_x = utils.clamp(self.knob_pressed_pos[0] + (mouse_x - self.mouse_pressed_pos[0]), self.x + 5, self.x + 215)
-            self.curr_val = self.min_val + (self.max_val - self.min_val) \
-                            * ((self.knob_x - self.x - 5) / 210)
+            self.knob_x = utils.clamp(self.knob_pressed_pos[0] + (mouse_x - self.mouse_pressed_pos[0]),
+                                      self.x + 5, self.x + 215)
+            self.curr_val = self.min_val + (self.max_val - self.min_val) * ((self.knob_x - self.x - 5) / 210)
             self.val_text.change_text(f"{round(self.curr_val)}{'%' if self.is_percent else ''}")
         else:
             self.mouse_pressed = False

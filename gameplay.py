@@ -9,7 +9,7 @@ import backgrounds.cdbounce
 from tween import *
 from text import Text
 from results import Results, save_score
-
+from enums import ScreenEnum
 
 class LiveAccuracy:
     def __init__(self):
@@ -54,7 +54,7 @@ class Note:
         # square_n = 5(y - 1) + x
         self.square_n = square_n
         self.x = square_n % 5
-        self.y = math.floor((square_n - 1) / 5) if square_n > 0 else 0
+        self.y = square_n // 5
 
     def render(self, chart_time: float, is_hit: bool, grid_x, grid_y):
         if chart_time >= self.note_time - self.visible_duration \
@@ -149,8 +149,8 @@ class Chart:
         self.image = pygame.image.load("assets/note.png")
         self.notes = notes
         self.song_start = song_start
-        self.song_file = pygame.mixer.Sound(song_filename)
-        self.length = self.song_file.get_length()
+        pygame.mixer.music.load(song_filename)
+        self.length = pygame.mixer.Sound(song_filename).get_length()
         self.info = f"{song_artist} - {song_name}"
 
         self.chart_clock = time.time()
@@ -160,19 +160,28 @@ class Chart:
         self.progress_bar_x = SIZE[0] // 5
         self.started = False
         self.finished = False
-
+        self.paused = False
+        self.pause_time = 0
         self.progress_rect_bg = pygame.Rect(self.progress_bar_x, 20, self.progress_bar_width, 50)
         self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, 1, 50)
         self.text = Text(self.info, (SIZE[0] // 5, 52), font=INFO_FONT)
 
     def start(self):
         self.chart_clock = time.time()
-        self.song_file.play()
+        pygame.mixer.music.play()
         self.started = True
         ...
 
     def render_notes(self, curr_grid: Grid, hit_note: bool):
-        time_diff = time.time() - self.chart_clock
+        if self.paused:
+            # TODO: add cumulative delay system that accounts for all pauses
+            # in gameplay
+            self.paused = False
+            pygame.mixer.music.play()
+            time_diff = time.time() - self.chart_clock - (time.time() - self.pause_time)
+            self.pause_time = 0
+        else:
+            time_diff = time.time() - self.chart_clock
         if time_diff > 0:
             for note in self.notes[:10]:
                 if curr_grid.square_n == note.square_n and hit_note:
@@ -202,13 +211,17 @@ class Chart:
     def render_live_acc(self):
         self.curr_acc.render()
 
+    def pause(self):
+        pygame.mixer.music.pause()
+        self.pause_time = time.time()
+
+
+
 
 def load_chart(chart_filename: str) -> Chart:
-    # before metadata, chart files contain only notes.
+    # after metadata JSON first line, chart files contain only notes.
     # each line after contains info of a note, and is formatted as:
     # [square_n] [note_time]
-    # then, metadata is loaded at end of file for convenience of coding this
-    # should change this later though! metadata should probably come first
     f = open(chart_filename, "r")
     notes_list = []
     song_name = song_artist = None
@@ -272,6 +285,9 @@ def gameplay_screen(events, chart_n: int):
                 grid.move_square(1, 0)
             if event.dict['key'] == pygame.K_SPACE:
                 hit_note = True
+            if event.dict['key'] == pygame.K_ESCAPE:
+                gameplay_chart_list[chart_n].pause()
+                return ScreenEnum.PAUSE
 
     grid.blit()
     gameplay_chart_list[chart_n].render_notes(grid, hit_note)
