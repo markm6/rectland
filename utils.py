@@ -20,8 +20,8 @@ def single_deviation_acc(deviation: float):
     dev = abs(deviation)
     if dev < 5:
         return 100
-    elif 5 < dev < 400:
-        return 100 - 0.001*((dev - 5)**1.91)
+    elif 5 < dev < 300:
+        return 101.133663 * (0.9979**dev)
     return -100
 
 
@@ -42,7 +42,7 @@ def get_judgements(deviations: list) -> dict:
             decents += 1
         elif dev < 100:
             goods += 1
-        elif dev < 400:
+        elif dev < 300:
             mehs += 1
         else:
             misses += 1
