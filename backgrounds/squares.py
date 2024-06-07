@@ -26,10 +26,7 @@ speeds = [random.randint(-5, -2) for _ in range(N_SQUARES)]
 for i in range(len(surfs)):
     surfs[i].set_alpha(40)
     c = gen_rgb(i)
-    print(c)
     surfs[i].fill(c)
-
-
 
 
 # -------- Main Program Loop -----------

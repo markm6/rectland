@@ -56,7 +56,7 @@ class Note:
         self.x = square_n % 5
         self.y = square_n // 5
 
-    def render(self, chart_time: float, is_hit: bool, grid_x, grid_y):
+    def render(self, chart_time: float, is_hit: bool, grid_x, grid_y, time_offset: float = 0):
         if chart_time >= self.note_time - self.visible_duration \
                 and not self.visible and not self.was_not_hit and not self.hit:
             self.visible = True
@@ -65,7 +65,7 @@ class Note:
             self.surface.fill(self.color)
 
         if self.visible:
-            self.scale_tween.update()
+            self.scale_tween.update(time_offset)
             self.scale = int(self.scale_tween.curr_val)
             self.surface = pygame.transform.scale(self.surface, (self.scale, self.scale))
             if is_hit:
@@ -162,29 +162,35 @@ class Chart:
         self.finished = False
         self.paused = False
         self.pause_time = 0
+        self.pause_total_time = 0
         self.progress_rect_bg = pygame.Rect(self.progress_bar_x, 20, self.progress_bar_width, 50)
         self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, 1, 50)
         self.text = Text(self.info, (SIZE[0] // 5, 52), font=INFO_FONT)
 
     def start(self):
         self.chart_clock = time.time()
+        from options import MUSIC_VOLUME, SFX_VOLUME
+        print(MUSIC_VOLUME / 100)
+        pygame.mixer.music.set_volume(MUSIC_VOLUME / 100)
+        SOUND_TEST_DING.set_volume(SFX_VOLUME / 100)
         pygame.mixer.music.play()
         self.started = True
         ...
 
     def render_notes(self, curr_grid: Grid, hit_note: bool):
         if self.paused:
-            # TODO: add cumulative delay system that accounts for all pauses
-            # in gameplay
             self.paused = False
-            pygame.mixer.music.play()
-            time_diff = time.time() - self.chart_clock - (time.time() - self.pause_time)
+            self.pause_total_time += time.time() - self.pause_time
+            pygame.mixer.music.play(start=time.time() - self.chart_clock - self.pause_total_time)
+
             self.pause_time = 0
-        else:
-            time_diff = time.time() - self.chart_clock
+
+        time_diff = time.time() - self.chart_clock - self.pause_total_time
         if time_diff > 0:
             for note in self.notes[:10]:
                 if curr_grid.square_n == note.square_n and hit_note:
+                    SOUND_TEST_DING.stop()
+                    SOUND_TEST_DING.play()
                     note.render(time_diff, True, curr_grid.x, curr_grid.y)
                     self.hit_deviations.append(note.hit_deviation)
                     self.curr_acc.update(note.hit_deviation)
@@ -198,7 +204,7 @@ class Chart:
                         self.notes.pop(0)
 
     def render_progress(self):
-        time_elapsed = time.time() - self.chart_clock
+        time_elapsed = time.time() - self.chart_clock - self.pause_total_time
         curr_progress = utils.clamp(time_elapsed / self.length, 0, 1)
         self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, int(curr_progress * self.progress_bar_width), 50)
         pygame.draw.rect(screen, (100, 100, 100), self.progress_rect_bg)
@@ -212,10 +218,9 @@ class Chart:
         self.curr_acc.render()
 
     def pause(self):
+        self.paused = True
         pygame.mixer.music.pause()
         self.pause_time = time.time()
-
-
 
 
 def load_chart(chart_filename: str) -> Chart:

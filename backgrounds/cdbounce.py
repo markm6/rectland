@@ -27,7 +27,6 @@ directions = [[1, 1] for _ in range (N_RECTANGLES)]
 for i in range(len(surfs)):
     surfs[i].set_alpha(30)
     c = gen_rgb(i)
-    print(c)
     surfs[i].fill(c)
 
 

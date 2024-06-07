@@ -82,28 +82,36 @@ def parse_scores_json(scores_json: dict) -> list[str]:
     return parsed_scores
 
 
+# TODO: organization, put scores menu in separate file?
 last_scores_text = Text("your last 10 scores:", (30, 30))
 scores_f = open("scores/scores.json", "r")
 try:
     curr_scores_json = json.load(scores_f)
 except json.decoder.JSONDecodeError:
     curr_scores_json = {}
-parsed_scores_list = parse_scores_json(curr_scores_json)[:10]
+parsed_scores_list = parse_scores_json(curr_scores_json)
+sorted_parsed_scores = sorted(parsed_scores_list, key=lambda score_text: score_text.split("on ")[1], reverse=True)
 scores_f.close()
-scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), parsed_scores_list)
+scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), sorted_parsed_scores[:10])
+
 
 
 def scores_menu(events, update_scores: bool):
     screen.fill((0, 0, 0))
     backgrounds.squares.render_rects(screen)
     mouse_pos = pygame.mouse.get_pos()
-    global scores_f, curr_scores_json, parsed_scores_list, scores_list
+    global scores_f, curr_scores_json, parsed_scores_list, scores_list, sorted_parsed_scores
     if update_scores:
         scores_f = open("scores/scores.json", "r")
-        curr_scores_json = json.load(scores_f)
+        try:
+            curr_scores_json = json.load(scores_f)
+        except json.decoder.JSONDecodeError:
+            curr_scores_json = {}
+        parsed_scores_list = parse_scores_json(curr_scores_json)
+        sorted_parsed_scores = sorted(parsed_scores_list, key=lambda score_text: score_text.split("on ")[1],
+                                      reverse=True)
         scores_f.close()
-        parsed_scores_list = parse_scores_json(curr_scores_json)[:10]
-        scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), parsed_scores_list)
+        scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), sorted_parsed_scores[:10])
 
     scores_list.blit(screen)
     last_scores_text.blit(screen)
@@ -118,7 +126,7 @@ def scores_menu(events, update_scores: bool):
 
 
 paused_text = Text("paused", (50, 50), font=BIG_FONT)
-back_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (50, 150), ["resume", "quit"])
+back_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (50, 150), ["resume", "main menu", "quit"])
 
 
 def pause_menu(events):
@@ -132,4 +140,6 @@ def pause_menu(events):
     if clicked_opt == 0:
         return ScreenEnum.GAMEPLAY
     elif clicked_opt == 1:
+        return ScreenEnum.MENU_STARTUP
+    elif clicked_opt == 2:
         utils.quit_game()

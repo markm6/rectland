@@ -1,7 +1,6 @@
 import pygame
 
 import results
-from constants import *
 from menus import startup_menu, song_menu, scores_menu, pause_menu
 from options import options_menu
 from gameplay import gameplay_screen

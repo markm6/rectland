@@ -29,8 +29,8 @@ class Tween:
 
         self.done = False
 
-    def update(self):
-        curr_time = time.time() - self.start_time
+    def update(self, time_offset: float = 0):
+        curr_time = time.time() - self.start_time + time_offset
         if curr_time < self.duration:
             self.curr_val = self.start_val + (self.end_val - self.start_val) * self.func(curr_time / self.duration)
         elif not self.done:
