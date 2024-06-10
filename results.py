@@ -5,10 +5,11 @@ from constants import *
 import json
 import uuid
 import datetime
+import math
 from utils import check_mouse_clicked
 
 judgement_colors = [(50, 255, 50), (255, 255, 20), (90, 30, 100), (100, 90, 30), (255, 10, 10)]
-
+failed_text = Text("failed", (SIZE[0] - 200, 20), (255, 10, 10))
 
 class Results:
     def __init__(self, hit_deviations: list[float], accuracy: float, chart_info_text: Text):
@@ -18,6 +19,12 @@ class Results:
         self.text_acc = Text(str(self.accuracy) + "%", (SIZE[0] - 100, SIZE[1] // 2))
         self.text_chart_info = chart_info_text
         self.date_time = datetime.datetime.now()
+        self.mean = round(sum(self.hit_devs) / len(self.hit_devs), 2)
+        self.mean_devs = [(dev - self.mean) ** 2 for dev in self.hit_devs]
+        self.std_dev = round(math.sqrt(sum(self.mean_devs) / (len(self.hit_devs))), 2)
+        print(self.std_dev, self.mean)
+        # TODO: make texts and render them (finish at home)
+
         if self.accuracy < 65:
             self.failed = True
         else:
@@ -30,9 +37,11 @@ class Results:
 
     def render(self):
         for text in self.judgement_texts:
-            text.blit(screen)
-        self.text_acc.blit(screen)
-        self.text_chart_info.blit(screen)
+            text.blit(SCREEN)
+        if self.failed:
+            failed_text.blit(SCREEN)
+        self.text_acc.blit(SCREEN)
+        self.text_chart_info.blit(SCREEN)
 
     def to_json(self):
         return {"chart_name": self.text_chart_info.display_text,
@@ -67,7 +76,7 @@ def save_score(chart_res: Results):
 
 
 def results_screen(events, chart_results: Results):
-    screen.fill((0, 0, 0))
+    SCREEN.fill((0, 0, 0))
     # render text & options next
     mouse_clicked = check_mouse_clicked(events)
     mouse_pos = pygame.mouse.get_pos()
@@ -76,5 +85,5 @@ def results_screen(events, chart_results: Results):
     if clicked_opt == 0:
         save_score(chart_results)
         return 1
-    exit_menu.blit(screen)
+    exit_menu.blit(SCREEN)
     pygame.display.update()

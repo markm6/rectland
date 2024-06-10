@@ -5,21 +5,21 @@ import utils
 
 
 class Slider:
-    def __init__(self, x, y, is_percent: bool, min_val, max_val):
+    def __init__(self, x, y, is_percent: bool, min_val, max_val, default_val: float):
         self.slider_img = pygame.image.load("assets/slider.png")
         self.slider_knob_img = pygame.image.load("assets/slider knob.png")
         self.x = x
         self.y = y
-        self.knob_x = self.x + 5
+        self.knob_x = self.x + 109
         self.knob_y = self.y + 5
         self.is_percent = is_percent
         self.min_val = min_val
-        self.curr_val = min_val
+        self.curr_val = default_val
         self.max_val = max_val
         self.mouse_pressed = False
         self.mouse_pressed_pos = None
         self.knob_pressed_pos = None
-        self.val_text = Text(str(min_val) + "%" if self.is_percent else str(min_val),
+        self.val_text = Text(str(self.curr_val) + "%" if self.is_percent else str(self.curr_val),
                              (self.x + 260, self.y))
 
     def render(self, mouse_x, mouse_y, mouse_down: bool):
@@ -38,6 +38,6 @@ class Slider:
             self.mouse_pressed = False
             self.mouse_pressed_pos = None
             self.knob_pressed_pos = None
-        screen.blit(self.slider_img, (self.x, self.y))
-        screen.blit(self.slider_knob_img, (self.knob_x, self.knob_y))
-        self.val_text.blit(screen)
+        SCREEN.blit(self.slider_img, (self.x, self.y))
+        SCREEN.blit(self.slider_knob_img, (self.knob_x, self.knob_y))
+        self.val_text.blit(SCREEN)

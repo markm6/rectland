@@ -25,7 +25,7 @@ class LiveAccuracy:
         self.text.change_text(str(self.curr_accuracy) + "%")
 
     def render(self):
-        self.text.blit(screen)
+        self.text.blit(SCREEN)
 
 
 # the grid class also includes the player
@@ -83,7 +83,7 @@ class Note:
                         self.hit_deviation = 3000
                         self.visible = False
         if self.visible:
-            screen.blit(self.surface, pygame.Rect(grid_x + self.x * 80 + 5, grid_y + self.y * 80 + 5, 74, 74))
+            SCREEN.blit(self.surface, pygame.Rect(grid_x + self.x * 80 + 5, grid_y + self.y * 80 + 5, 74, 74))
         ...
 
 
@@ -125,8 +125,8 @@ class Grid:
             self.y_tween.update()
             self.square_actual_y = self.y_tween.curr_val
 
-        screen.blit(self.square_image, (self.square_actual_x, self.square_actual_y))
-        screen.blit(self.image, (self.x, self.y))
+        SCREEN.blit(self.square_image, (self.square_actual_x, self.square_actual_y))
+        SCREEN.blit(self.image, (self.x, self.y))
 
     def reset_grid(self):
         self.square_n = 0
@@ -140,8 +140,6 @@ class Grid:
 
 grid = Grid(SIZE[0] // 2 - 405, SIZE[1] - 500)
 
-
-# wondering on how I should have chart class interact with grid in code... will think about this at home
 class Chart:
     def __init__(self, notes: list[Note], song_name: str, song_artist: str,
                  song_filename: str, song_start: float):
@@ -156,15 +154,32 @@ class Chart:
         self.chart_clock = time.time()
         self.hit_deviations = []
         self.curr_acc = LiveAccuracy()
+
         self.progress_bar_width = SIZE[0] // 2
         self.progress_bar_x = SIZE[0] // 5
+
+        self.hp_x_pos = SIZE[0] - 80
+        self.hp_y_pos = SIZE[1] - 500
+        self.hp_width = 50
+        self.hp_height = 400
+
+        self.hp_color = (255, 50, 50)
+        self.hp_bg_color = (120, 100, 120)
+
         self.started = False
         self.finished = False
         self.paused = False
+
         self.pause_time = 0
         self.pause_total_time = 0
+
         self.progress_rect_bg = pygame.Rect(self.progress_bar_x, 20, self.progress_bar_width, 50)
         self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, 1, 50)
+
+        self.hp = 100
+        self.hp_rect = pygame.Rect(self.hp_x_pos, self.hp_y_pos, self.hp_width, self.hp_height)
+        self.hp_bg_rect = self.hp_rect
+
         self.text = Text(self.info, (SIZE[0] // 5, 52), font=INFO_FONT)
 
     def start(self):
@@ -193,29 +208,50 @@ class Chart:
                     SOUND_TEST_DING.play()
                     note.render(time_diff, True, curr_grid.x, curr_grid.y)
                     self.hit_deviations.append(note.hit_deviation)
+                    if note.hit_deviation < 100:
+                        self.hp += 5
+                    else:
+                        self.hp += 2
+
                     self.curr_acc.update(note.hit_deviation)
                     self.notes.pop(0)
 
                 else:
                     note.render(time_diff, False, curr_grid.x, curr_grid.y)
                     if note.was_not_hit:
+                        self.hp -= 12
+                        print(self.hp)
                         self.hit_deviations.append(note.hit_deviation)
                         self.curr_acc.update(note.hit_deviation)
                         self.notes.pop(0)
+
+        if self.hp <= 0:
+            self.finished = True
+            self.curr_acc.curr_accuracy = -100
+        else:
+            self.hp = utils.clamp(self.hp, 0, 100)
 
     def render_progress(self):
         time_elapsed = time.time() - self.chart_clock - self.pause_total_time
         curr_progress = utils.clamp(time_elapsed / self.length, 0, 1)
         self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, int(curr_progress * self.progress_bar_width), 50)
-        pygame.draw.rect(screen, (100, 100, 100), self.progress_rect_bg)
-        pygame.draw.rect(screen, (60, 60, 90), self.progress_rect_fg)
+        pygame.draw.rect(SCREEN, (100, 100, 100), self.progress_rect_bg)
+        pygame.draw.rect(SCREEN, (60, 60, 90), self.progress_rect_fg)
         # TODO: refactor everything to not require scr param
-        self.text.blit(screen)
+        self.text.blit(SCREEN)
         if time_elapsed >= self.length:
             self.finished = True
 
     def render_live_acc(self):
         self.curr_acc.render()
+
+    def render_hp_bar(self):
+        self.hp_curr_height = self.hp_height * (self.hp / 100)
+        self.hp_rect = pygame.Rect(self.hp_x_pos, self.hp_y_pos - self.hp_curr_height + self.hp_height, self.hp_width, self.hp_curr_height)
+
+        pygame.draw.rect(SCREEN, self.hp_bg_color, self.hp_bg_rect)
+        pygame.draw.rect(SCREEN, self.hp_color, self.hp_rect)
+
 
     def pause(self):
         self.paused = True
@@ -274,9 +310,10 @@ def gameplay_screen(events, chart_n: int):
         return Results(finished_chart.hit_deviations, finished_chart.curr_acc.curr_accuracy,
                        finished_chart.text)
 
-    screen.fill((0, 0, 0))
-    backgrounds.cdbounce.render_rects(screen)
+    SCREEN.fill((0, 0, 0))
+    backgrounds.cdbounce.render_rects(SCREEN)
     gameplay_chart_list[chart_n].render_progress()
+    gameplay_chart_list[chart_n].render_hp_bar()
     hit_note = False
     for event in events:
         if event.type == pygame.KEYDOWN:

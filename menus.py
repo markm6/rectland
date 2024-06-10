@@ -18,10 +18,10 @@ def startup_menu(events) -> Union[None, ScreenEnum]:
                           ["play", "options", "scores list", "quit"])
     mouse_pos = pygame.mouse.get_pos()
     clock.tick(60)
-    screen.fill((0, 0, 0))
+    SCREEN.fill((0, 0, 0))
 
     # first handle rects moving, shake etc
-    backgrounds.rectangles.render_rects(screen)
+    backgrounds.rectangles.render_rects(SCREEN)
 
     # render text & options next
     mouse_clicked = False
@@ -37,7 +37,7 @@ def startup_menu(events) -> Union[None, ScreenEnum]:
         return ScreenEnum.SCORES_LIST
     elif clicked_opt == 3:
         utils.quit_game()
-    menu.blit(screen)
+    menu.blit(SCREEN)
     pygame.display.update()
 
 
@@ -51,15 +51,15 @@ def song_menu(events):
     # TODO: finish up song menu, make a new background for this
     mouse_pos = pygame.mouse.get_pos()
     clock.tick(60)
-    screen.fill((0, 0, 0))
+    SCREEN.fill((0, 0, 0))
 
     # first handle rects moving, shake etc
-    backgrounds.rectangles.render_rects(screen)
+    backgrounds.rectangles.render_rects(SCREEN)
 
     # render text & options next
     mouse_clicked = check_mouse_clicked(events)
     hovered_opt, clicked_opt = menu.get_interacted(mouse_pos, mouse_clicked)
-    menu.blit(screen)
+    menu.blit(SCREEN)
     pygame.display.update()
     if clicked_opt == 0:
         return 2
@@ -97,8 +97,8 @@ scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 1
 
 
 def scores_menu(events, update_scores: bool):
-    screen.fill((0, 0, 0))
-    backgrounds.squares.render_rects(screen)
+    SCREEN.fill((0, 0, 0))
+    backgrounds.squares.render_rects(SCREEN)
     mouse_pos = pygame.mouse.get_pos()
     global scores_f, curr_scores_json, parsed_scores_list, scores_list, sorted_parsed_scores
     if update_scores:
@@ -113,9 +113,9 @@ def scores_menu(events, update_scores: bool):
         scores_f.close()
         scores_list = TextOptionMenu(INFO_FONT, (200, 200, 210), (255, 255, 255), (30, 100), sorted_parsed_scores[:10])
 
-    scores_list.blit(screen)
-    last_scores_text.blit(screen)
-    exit_menu.blit(screen)
+    scores_list.blit(SCREEN)
+    last_scores_text.blit(SCREEN)
+    exit_menu.blit(SCREEN)
     mouse_clicked = check_mouse_clicked(events)
 
     hovered_opt, clicked_opt = exit_menu.get_interacted(mouse_pos, mouse_clicked)
@@ -132,9 +132,9 @@ back_menu = TextOptionMenu(BASE_FONT, (200, 200, 250), (255, 50, 50), (50, 150),
 def pause_menu(events):
     mouse_pos = pygame.mouse.get_pos()
     clicked = check_mouse_clicked(events)
-    screen.fill((0, 0, 0))
-    paused_text.blit(screen)
-    back_menu.blit(screen)
+    SCREEN.fill((0, 0, 0))
+    paused_text.blit(SCREEN)
+    back_menu.blit(SCREEN)
     pygame.display.flip()
     hovered, clicked_opt = back_menu.get_interacted(mouse_pos, clicked)
     if clicked_opt == 0:

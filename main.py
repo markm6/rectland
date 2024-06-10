@@ -43,7 +43,6 @@ while not utils.check_quit(events):
                     scr = ScreenEnum.RESULTS
                 else:
                     scr = ret
-
         case ScreenEnum.RESULTS:
             return_code = results_screen(events, curr_results)
             if return_code:
@@ -63,6 +62,10 @@ while not utils.check_quit(events):
         case ScreenEnum.PAUSE:
             return_code = pause_menu(events)
             if return_code:
+                if return_code == ScreenEnum.MENU_STARTUP:
+                    from gameplay import gameplay_chart_list, load_chart, chart_locations, grid
+                    gameplay_chart_list[curr_chart] = load_chart(chart_locations[curr_chart])
+                    grid.reset_grid()
                 scr = return_code
 
     events = pygame.event.get()
