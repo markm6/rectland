@@ -49,8 +49,8 @@ def get_judgements(deviations: list) -> dict:
     return {"perfects": perfects, "decents": decents, "goods": goods, "mehs": mehs, "misses": misses}
 
 
-def check_mouse_clicked(events):
+def check_mouse_clicked(events: list[pygame.event.Event]):
     for event in events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             return True
     return False

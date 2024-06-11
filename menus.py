@@ -24,10 +24,7 @@ def startup_menu(events) -> Union[None, ScreenEnum]:
     backgrounds.rectangles.render_rects(SCREEN)
 
     # render text & options next
-    mouse_clicked = False
-    for event in events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_clicked = True
+    mouse_clicked = check_mouse_clicked(events)
     hovered_opt, clicked_opt = menu.get_interacted(mouse_pos, mouse_clicked)
     if clicked_opt == 0:
         return ScreenEnum.MENU_SONGS

@@ -106,12 +106,13 @@ class Grid:
         self.y_tween = tween.Tween(tween.EaseLinear, self.square_actual_y, self.square_actual_y, 0)
 
     def move_square(self, x, y):
-        if (self.square_x < 4 and x > 0) or (self.square_x > 0 > x):
+        if 0 <= self.square_x + x <= 4:
             self.square_x += x
             self.square_n += x
             self.x_tween = tween.Tween(tween.EaseSineInOut, (self.square_x - x) * 80 + self.x + 5,
                                        self.square_x * 80 + self.x + 5, 0.08)
-        if (self.square_y < 4 and y > 0) or (self.square_y > 0 > y):
+
+        if 0 <= self.square_y + y <= 4:
             self.square_y += y
             self.square_n += y * 5
             self.y_tween = tween.Tween(tween.EaseSineInOut, (self.square_y - y) * 80 + self.y + 5,
@@ -187,7 +188,7 @@ class Chart:
         from options import MUSIC_VOLUME, SFX_VOLUME
         print(MUSIC_VOLUME / 100)
         pygame.mixer.music.set_volume(MUSIC_VOLUME / 100)
-        SOUND_TEST_DING.set_volume(SFX_VOLUME / 100)
+        SOUND_NOTE_HIT.set_volume(SFX_VOLUME / 100)
         pygame.mixer.music.play()
         self.started = True
         ...
@@ -204,8 +205,8 @@ class Chart:
         if time_diff > 0:
             for note in self.notes[:10]:
                 if curr_grid.square_n == note.square_n and hit_note:
-                    SOUND_TEST_DING.stop()
-                    SOUND_TEST_DING.play()
+                    SOUND_NOTE_HIT.stop()
+                    SOUND_NOTE_HIT.play()
                     note.render(time_diff, True, curr_grid.x, curr_grid.y)
                     self.hit_deviations.append(note.hit_deviation)
                     if note.hit_deviation < 100:
@@ -315,16 +316,22 @@ def gameplay_screen(events, chart_n: int):
     gameplay_chart_list[chart_n].render_progress()
     gameplay_chart_list[chart_n].render_hp_bar()
     hit_note = False
+
+    keys_pressed = pygame.key.get_pressed()
+    movement_mult = 1
+    if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
+        movement_mult = 2
+    print(keys_pressed)
     for event in events:
         if event.type == pygame.KEYDOWN:
             if event.dict['key'] == pygame.K_UP:
-                grid.move_square(0, -1)
+                grid.move_square(0, -1 * movement_mult)
             if event.dict['key'] == pygame.K_DOWN:
-                grid.move_square(0, 1)
+                grid.move_square(0, 1 * movement_mult)
             if event.dict['key'] == pygame.K_LEFT:
-                grid.move_square(-1, 0)
+                grid.move_square(-1 * movement_mult, 0)
             if event.dict['key'] == pygame.K_RIGHT:
-                grid.move_square(1, 0)
+                grid.move_square(1 * movement_mult, 0)
             if event.dict['key'] == pygame.K_SPACE:
                 hit_note = True
             if event.dict['key'] == pygame.K_ESCAPE:

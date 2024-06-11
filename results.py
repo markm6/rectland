@@ -16,14 +16,15 @@ class Results:
         self.hit_devs = hit_deviations
         self.accuracy = accuracy
         self.judgements = get_judgements(self.hit_devs)
-        self.text_acc = Text(str(self.accuracy) + "%", (SIZE[0] - 100, SIZE[1] // 2))
+        self.text_acc = Text(str(self.accuracy) + "%", (100, 100), font=SEMI_BIG_FONT)
         self.text_chart_info = chart_info_text
+        self.text_chart_info.change_font(BASE_FONT)
         self.date_time = datetime.datetime.now()
         self.mean = round(sum(self.hit_devs) / len(self.hit_devs), 2)
         self.mean_devs = [(dev - self.mean) ** 2 for dev in self.hit_devs]
         self.std_dev = round(math.sqrt(sum(self.mean_devs) / (len(self.hit_devs))), 2)
-        print(self.std_dev, self.mean)
         # TODO: make texts and render them (finish at home)
+
 
         if self.accuracy < 65:
             self.failed = True
@@ -34,6 +35,8 @@ class Results:
             (100, SIZE[1] // 4 + num * 30),
             judgement_colors[num])
             for num, judgement_text in enumerate(f"{key}: {self.judgements[key]}" for key in self.judgements)]
+        self.mean_text = Text(f"mean: {self.mean}ms", (100, 400))
+        self.std_dev_text = Text(f"std. dev: {self.std_dev}ms", (100, 450))
 
     def render(self):
         for text in self.judgement_texts:
@@ -42,6 +45,9 @@ class Results:
             failed_text.blit(SCREEN)
         self.text_acc.blit(SCREEN)
         self.text_chart_info.blit(SCREEN)
+        self.mean_text.blit(SCREEN)
+        self.std_dev_text.blit(SCREEN)
+
 
     def to_json(self):
         return {"chart_name": self.text_chart_info.display_text,

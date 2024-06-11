@@ -9,6 +9,8 @@ import time
 import utils
 import random
 from enums import ScreenEnum
+import jurigged
+jurigged.watch()
 
 loading_text = BASE_FONT.render("Loading...", True, (255, 255, 255))
 
@@ -27,7 +29,6 @@ while not utils.check_quit(events):
             if return_code is not None:
                 scr = return_code
         case ScreenEnum.MENU_SONGS:
-            # TODO: make some charts at home, add a menu here to select between charts
             return_code = song_menu(events)
             if return_code is not None:
                 if return_code != ScreenEnum.MENU_STARTUP:
