@@ -10,3 +10,4 @@ class ScreenEnum(Enum):
     OPTIONS = 4
     SCORES_LIST = 5
     PAUSE = 6
+

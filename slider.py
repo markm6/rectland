@@ -32,7 +32,6 @@ class Slider:
             self.knob_x = utils.clamp(self.knob_pressed_pos[0] + (mouse_x - self.mouse_pressed_pos[0]),
                                       self.x + 5, self.x + 215)
             self.curr_val = self.min_val + (self.max_val - self.min_val) * ((self.knob_x - self.x - 5) / 210)
-            print(self.val_text.display_text, self.curr_val)
             self.val_text.change_text(f"{round(self.curr_val)}{'%' if self.is_percent else ''}")
         else:
             self.mouse_pressed = False

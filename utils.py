@@ -1,7 +1,9 @@
 import pygame
 
+
 def check_quit(events):
     return pygame.event.Event(256) in events
+
 
 def clamp(val, min_val, max_val):
     v = val
@@ -10,6 +12,7 @@ def clamp(val, min_val, max_val):
     elif val < min_val:
         v = min_val
     return v
+
 
 def quit_game():
     pygame.quit()
@@ -21,7 +24,7 @@ def single_deviation_acc(deviation: float):
     if dev < 5:
         return 100
     elif 5 < dev < 300:
-        return 101.133663 * (0.9979**dev)
+        return 101.133663 * (0.9979 ** dev)
     return -100
 
 
@@ -47,6 +50,21 @@ def get_judgements(deviations: list) -> dict:
         else:
             misses += 1
     return {"perfects": perfects, "decents": decents, "goods": goods, "mehs": mehs, "misses": misses}
+
+
+def get_single_dev_judgement(dev: float):
+    """Given a single deviation, returns an int from
+    0-4 where 0 is a perfect and 4 is a miss"""
+    a_dev = abs(dev)
+    if a_dev < 20:
+        return 0
+    elif a_dev < 50:
+        return 1
+    elif a_dev < 100:
+        return 2
+    elif a_dev < 300:
+        return 3
+    return 4
 
 
 def check_mouse_clicked(events: list[pygame.event.Event]):

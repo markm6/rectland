@@ -8,8 +8,11 @@ import json
 import backgrounds.cdbounce
 from tween import *
 from text import Text
-from results import Results, save_score
+from results import Results, save_score, judgement_colors
 from enums import ScreenEnum
+
+judgement_names = ("perfect!", "decent", "good", "meh", "miss")
+
 
 class LiveAccuracy:
     def __init__(self):
@@ -139,12 +142,13 @@ class Grid:
         self.y_tween = None
 
 
-grid = Grid(SIZE[0] // 2 - 405, SIZE[1] - 500)
+grid = Grid(SIZE[0] // 2 - 405 // 2, SIZE[1] - 500)
+
 
 class Chart:
     def __init__(self, notes: list[Note], song_name: str, song_artist: str,
                  song_filename: str, song_start: float):
-
+        self.combo = 0
         self.image = pygame.image.load("assets/note.png")
         self.notes = notes
         self.song_start = song_start
@@ -163,6 +167,7 @@ class Chart:
         self.hp_y_pos = SIZE[1] - 500
         self.hp_width = 50
         self.hp_height = 400
+        self.hp_curr_height = self.hp_height
 
         self.hp_color = (255, 50, 50)
         self.hp_bg_color = (120, 100, 120)
@@ -181,12 +186,15 @@ class Chart:
         self.hp_rect = pygame.Rect(self.hp_x_pos, self.hp_y_pos, self.hp_width, self.hp_height)
         self.hp_bg_rect = self.hp_rect
 
-        self.text = Text(self.info, (SIZE[0] // 5, 52), font=INFO_FONT)
+        self.text = Text(self.info, (SIZE[0] // 5, 40), font=BASE_FONT)
+        self.judgement_texts: list[Text] = [Text(t, (1000, 240), judgement_colors[num]) for num, t in enumerate(judgement_names)]
+        self.combo_text = Text("combo 0", (1000, 200))
+        self.combo_changed = False
 
+        self.current_judge = None
     def start(self):
         self.chart_clock = time.time()
         from options import MUSIC_VOLUME, SFX_VOLUME
-        print(MUSIC_VOLUME / 100)
         pygame.mixer.music.set_volume(MUSIC_VOLUME / 100)
         SOUND_NOTE_HIT.set_volume(SFX_VOLUME / 100)
         pygame.mixer.music.play()
@@ -213,7 +221,9 @@ class Chart:
                         self.hp += 5
                     else:
                         self.hp += 2
-
+                    self.combo += 1
+                    self.combo_changed = True
+                    self.current_judge = utils.get_single_dev_judgement(note.hit_deviation)
                     self.curr_acc.update(note.hit_deviation)
                     self.notes.pop(0)
 
@@ -221,9 +231,11 @@ class Chart:
                     note.render(time_diff, False, curr_grid.x, curr_grid.y)
                     if note.was_not_hit:
                         self.hp -= 12
-                        print(self.hp)
                         self.hit_deviations.append(note.hit_deviation)
                         self.curr_acc.update(note.hit_deviation)
+                        self.current_judge = 4
+                        self.combo = 0
+                        self.combo_changed = True
                         self.notes.pop(0)
 
         if self.hp <= 0:
@@ -232,26 +244,34 @@ class Chart:
         else:
             self.hp = utils.clamp(self.hp, 0, 100)
 
-    def render_progress(self):
+    def render_ui(self):
+        # render progress bar
         time_elapsed = time.time() - self.chart_clock - self.pause_total_time
         curr_progress = utils.clamp(time_elapsed / self.length, 0, 1)
         self.progress_rect_fg = pygame.Rect(self.progress_bar_x, 20, int(curr_progress * self.progress_bar_width), 50)
         pygame.draw.rect(SCREEN, (100, 100, 100), self.progress_rect_bg)
         pygame.draw.rect(SCREEN, (60, 60, 90), self.progress_rect_fg)
-        # TODO: refactor everything to not require scr param
         self.text.blit(SCREEN)
         if time_elapsed >= self.length:
             self.finished = True
 
-    def render_live_acc(self):
+        # render live accuracy
         self.curr_acc.render()
 
-    def render_hp_bar(self):
+        # render HP bar
         self.hp_curr_height = self.hp_height * (self.hp / 100)
-        self.hp_rect = pygame.Rect(self.hp_x_pos, self.hp_y_pos - self.hp_curr_height + self.hp_height, self.hp_width, self.hp_curr_height)
-
+        self.hp_rect = pygame.Rect(self.hp_x_pos, self.hp_y_pos - self.hp_curr_height + self.hp_height, self.hp_width,
+                                   self.hp_curr_height)
         pygame.draw.rect(SCREEN, self.hp_bg_color, self.hp_bg_rect)
         pygame.draw.rect(SCREEN, self.hp_color, self.hp_rect)
+
+        # render combo and current judgement text
+        if self.combo_changed:
+            self.combo_changed = False
+            self.combo_text.change_text(f"{self.combo} combo")
+        self.combo_text.blit(SCREEN)
+        if self.current_judge is not None:
+            self.judgement_texts[self.current_judge].blit(SCREEN)
 
 
     def pause(self):
@@ -313,15 +333,12 @@ def gameplay_screen(events, chart_n: int):
 
     SCREEN.fill((0, 0, 0))
     backgrounds.cdbounce.render_rects(SCREEN)
-    gameplay_chart_list[chart_n].render_progress()
-    gameplay_chart_list[chart_n].render_hp_bar()
     hit_note = False
 
     keys_pressed = pygame.key.get_pressed()
     movement_mult = 1
     if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
         movement_mult = 2
-    print(keys_pressed)
     for event in events:
         if event.type == pygame.KEYDOWN:
             if event.dict['key'] == pygame.K_UP:
@@ -340,5 +357,5 @@ def gameplay_screen(events, chart_n: int):
 
     grid.blit()
     gameplay_chart_list[chart_n].render_notes(grid, hit_note)
-    gameplay_chart_list[chart_n].render_live_acc()
+    gameplay_chart_list[chart_n].render_ui()
     pygame.display.update()

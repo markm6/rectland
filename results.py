@@ -8,8 +8,9 @@ import datetime
 import math
 from utils import check_mouse_clicked
 
-judgement_colors = [(50, 255, 50), (255, 255, 20), (90, 30, 100), (100, 90, 30), (255, 10, 10)]
+judgement_colors = ((50, 255, 50), (255, 255, 20), (90, 30, 100), (100, 90, 30), (255, 10, 10))
 failed_text = Text("failed", (SIZE[0] - 200, 20), (255, 10, 10))
+
 
 class Results:
     def __init__(self, hit_deviations: list[float], accuracy: float, chart_info_text: Text):
@@ -24,7 +25,6 @@ class Results:
         self.mean_devs = [(dev - self.mean) ** 2 for dev in self.hit_devs]
         self.std_dev = round(math.sqrt(sum(self.mean_devs) / (len(self.hit_devs))), 2)
         # TODO: make texts and render them (finish at home)
-
 
         if self.accuracy < 65:
             self.failed = True
@@ -47,7 +47,6 @@ class Results:
         self.text_chart_info.blit(SCREEN)
         self.mean_text.blit(SCREEN)
         self.std_dev_text.blit(SCREEN)
-
 
     def to_json(self):
         return {"chart_name": self.text_chart_info.display_text,
